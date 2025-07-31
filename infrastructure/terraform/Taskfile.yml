@@ -1,0 +1,68 @@
+version: '3'
+
+tasks:
+  gen-ssh-key:
+    desc: "Generate SSH key if not present"
+    cmds:
+      - mkdir -p ../tmp
+      - test -f ../tmp/id_ed25519 || ssh-keygen -t ed25519 -f ../tmp/id_ed25519 -C "Generated SSH Key for Hetzner"
+  check-requirements:
+    desc: "Check if required tools are installed"
+    silent: true
+    internal: true
+    cmds:
+      - test -f ../tmp/id_ed25519 || (echo "SSH key not found. Please generate one in infrastructure/tmp/ using \"task terraform:gen-ssh-key\" and then run this command again." && exit 1)
+  plan:
+    dotenv: [".env"]
+    deps: [check-requirements]
+    desc: "Run Terraform plan"
+    cmds:
+      - terraform plan
+  apply:
+    dotenv: [".env", "../pyinfra/.env"]
+    deps: [check-requirements]
+    desc: "Run Terraform apply"
+    cmds:
+      - terraform apply -auto-approve
+  destroy:
+    dotenv: [".env"]
+    deps: [check-requirements, "clean-known-hosts"]
+    desc: "Run Terraform destroy"
+    cmds:
+      - terraform destroy -auto-approve
+  init:
+    dotenv: [".env"]
+    deps: [check-requirements]
+    desc: "Run Terraform init"
+    cmds:
+      - terraform init
+  validate:
+    dotenv: [".env"]
+    deps: [check-requirements]
+    desc: "Run Terraform validate"
+    cmds:
+      - terraform validate
+  fmt:
+    dotenv: [".env"]
+    desc: "Run Terraform fmt"
+    cmds:
+      - terraform fmt -check
+  output:
+    dotenv: [".env"]
+    desc: "Run Terraform output"
+    cmds:
+      - terraform output -json > output.json
+  lint:
+    dotenv: [".env"]
+    desc: "Run Terraform linting tools"
+    cmds: 
+      - tflint --init
+      - tflint
+  checkov:
+    desc: "Run Checkov for security scanning"
+    cmds:
+      - checkov -d .
+  clean-known-hosts:
+    desc: "Clean known_hosts file"
+    cmds:
+      - rm -f ~/.ssh/known_hosts

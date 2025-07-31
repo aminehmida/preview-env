@@ -1,0 +1,21 @@
+version: "3"
+
+tasks:
+  check-requirements:
+    desc: "Check if required files are present"
+    silent: true
+    internal: true
+    cmds:
+      - test -f ../tmp/id_ed25519 || (echo "SSH key not found. Please generate one in ../tmp/ using \"task terraform:gen-ssh-key\" and then run this command again." && exit 1)
+  provision:
+    dotenv: [".env"]
+    deps: [check-requirements]
+    desc: " Provision infrastructure with pyinfra"
+    cmds:
+      - pyinfra inventory.py deploy.py -v
+  get-kubeconfig:
+    dotenv: [".env"]
+    deps: [check-requirements]
+    desc: "Get kubeconfig file"
+    cmds:
+      - pyinfra inventory.py files.get src=/etc/rancher/k3s/k3s.yaml dest=../tmp/kubeconfig

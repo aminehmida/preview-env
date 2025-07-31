@@ -1,0 +1,28 @@
+version: "3"
+
+vars:
+  APP_NAME: '{{.APP_NAME | default "preview-env"}}'
+  IMAGE: '{{.IMAGE | default "c8n.io/aminehmida/preview-env:latest"}}'
+  PORT: '{{.PORT | default 3000}}'
+  BASE_DOMAIN: '{{.BASE_DOMAIN | default "previewenv.aminehmida.com"}}'
+  ENV: '{{.ENV | default "prod"}}'
+  REPLICAS: '{{.REPLICAS | default 1}}'
+
+tasks:
+  compile:
+    desc: "Compile kubernetes manifests using Jsonnet to manifests/"
+    cmds:
+      - jsonnet -S --ext-str appName="{{.APP_NAME}}" --ext-str image="{{.IMAGE}}" --ext-str port="{{.PORT}}" --ext-str baseDomain="{{.BASE_DOMAIN}}" --ext-str env="{{.ENV}}" --ext-str replicas={{.REPLICAS}} main.jsonnet -m manifests/
+  apply:
+    desc: "Apply kubernetes manifests"
+    deps: [compile]
+    cmds:
+      - kubectl --kubeconfig=../tmp/kubeconfig apply -f manifests/
+  delete:
+    desc: "Delete kubernetes manifests"
+    cmds:
+      - kubectl --kubeconfig=../tmp/kubeconfig delete -f manifests/
+  clean:
+    desc: "Clean up generated manifests"
+    cmds:
+      - rm -rf manifests/*

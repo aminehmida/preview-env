@@ -1,0 +1,12 @@
+version: '3'
+
+includes:
+  terraform:
+    taskfile: ./infrastructure/terraform/Taskfile.yml
+    dir: ./infrastructure/terraform
+  pyinfra:
+    taskfile: ./infrastructure/pyinfra/Taskfile.yml
+    dir: ./infrastructure/pyinfra
+  k8s:
+    taskfile: ./infrastructure/jsonnet/Taskfile.yml
+    dir: ./infrastructure/jsonnet
