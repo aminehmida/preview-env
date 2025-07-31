@@ -1,0 +1,9 @@
+.env
+*.tfstate*
+# Local .terraform directory
+.terraform/
+# Local .terraform.lock.hcl file
+.terraform.lock.hcl
+infrastructure/tmp/
+infrastructure/jsonnet/manifests/
+*.log

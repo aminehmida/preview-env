@@ -1,0 +1,63 @@
+version: '3'
+
+tasks:
+  check-requirements:
+    desc: "Check if required tools are installed"
+    silent: true
+    internal: true
+    cmds:
+      - test -f ~/.ssh/id_rsa || (echo "SSH key not found. Please generate one." && exit 1)
+  plan:
+    dotenv: [".env"]
+    deps: [check-requirements]
+    desc: "Run Terraform plan"
+    cmds:
+      - terraform plan
+  apply:
+    dotenv: [".env", "../pyinfra/.env"]
+    deps: [check-requirements]
+    desc: "Run Terraform apply"
+    cmds:
+      - terraform apply -auto-approve
+  destroy:
+    dotenv: [".env"]
+    deps: [check-requirements, "clean-known-hosts"]
+    desc: "Run Terraform destroy"
+    cmds:
+      - terraform destroy -auto-approve
+  init:
+    dotenv: [".env"]
+    deps: [check-requirements]
+    desc: "Run Terraform init"
+    cmds:
+      - terraform init
+  validate:
+    dotenv: [".env"]
+    deps: [check-requirements]
+    desc: "Run Terraform validate"
+    cmds:
+      - terraform validate
+  fmt:
+    dotenv: [".env"]
+    desc: "Run Terraform fmt"
+    cmds:
+      - terraform fmt -check
+  output:
+    dotenv: [".env"]
+    desc: "Run Terraform output"
+    cmds:
+      - terraform output -json > output.json
+  lint:
+    dotenv: [".env"]
+    desc: "Run Terraform linting tools"
+    cmds: 
+      - tflint --init
+      - tflint
+  checkov:
+    desc: "Run Checkov for security scanning"
+    cmds:
+      - checkov -d .
+  clean-known-hosts:
+    desc: "Clean known_hosts file"
+    cmds:
+      - rm -f ~/.ssh/known_hosts

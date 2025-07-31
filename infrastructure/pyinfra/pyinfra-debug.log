@@ -1,0 +1,9 @@
+  File "/usr/local/py-utils/venvs/pyinfra/lib/python3.11/site-packages/pyinfra_cli/main.py", line 225, in cli
+    _main(*args, **kwargs)
+  File "/usr/local/py-utils/venvs/pyinfra/lib/python3.11/site-packages/pyinfra_cli/main.py", line 388, in _main
+    and not _do_confirm("Detected changes displayed above, skip this step with -y")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/py-utils/venvs/pyinfra/lib/python3.11/site-packages/pyinfra_cli/main.py", line 414, in _do_confirm
+    v = input()
+        ^^^^^^^
+EOFError: EOF when reading a line
