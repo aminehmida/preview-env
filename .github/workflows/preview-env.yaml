@@ -97,6 +97,9 @@ jobs:
 
     - name: Deploy to Kubernetes
       run: |
+        # Debug output head of kubeconfig
+        echo "Kubeconfig content:"
+        head -n 10 infrastructure/tmp/kubeconfig
         # Run deployment using Task with your specific variables
         task k8s:apply \
           APP_NAME="preview-env" \
