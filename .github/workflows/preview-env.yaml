@@ -93,7 +93,7 @@ jobs:
         mkdir -p infrastructure/tmp
         
         # Configure kubectl to connect to your cluster
-        echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > infrastructure/tmp/kubeconfig
+        echo "${{ secrets.KUBECONFIG }}" | base64 --decode > infrastructure/tmp/kubeconfig
 
     - name: Deploy to Kubernetes
       run: |
