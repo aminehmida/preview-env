@@ -22,6 +22,7 @@ tasks:
       - kubectl --kubeconfig={{.KUBE_CONFIG}} apply -f manifests/
   delete:
     desc: "Delete kubernetes manifests"
+    deps: [compile]
     cmds:
       - kubectl --kubeconfig={{.KUBE_CONFIG}} delete -f manifests/
   clean:
