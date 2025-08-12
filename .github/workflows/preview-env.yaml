@@ -60,7 +60,7 @@ jobs:
         push: true
         tags: |
           ${{ steps.meta.outputs.full_image }}
-          ${{ secrets.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.safe_branch_name }}-latest
+          ${{ secrets.REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.preview_env_name }}-latest
         cache-from: type=gha
         cache-to: type=gha,mode=max
     
