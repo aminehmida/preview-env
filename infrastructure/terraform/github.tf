@@ -2,7 +2,7 @@
 resource "github_actions_secret" "kubeconfig" {
   repository = var.repo_name
   secret_name = "KUBECONFIG"
-  plaintext_value = file("../tmp/kubeconfig")
+  plaintext_value = base64encode(file("../tmp/kubeconfig"))
 }
 
 // Add registry credentials as github action secrets

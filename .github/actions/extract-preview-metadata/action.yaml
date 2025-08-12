@@ -1,0 +1,64 @@
+name: 'Extract Preview Environment Metadata'
+description: 'Extracts metadata for preview environment naming and tagging'
+
+inputs:
+  pr-number:
+    description: 'Pull request number'
+    required: true
+  committer-username:
+    description: 'Username of the PR author'
+    required: true
+  registry-url:
+    description: 'Container registry URL'
+    required: false
+    default: ''
+  image-name:
+    description: 'Docker image name'
+    required: false
+    default: ''
+
+outputs:
+  short-sha:
+    description: 'Short commit SHA (7 characters)'
+    value: ${{ steps.meta.outputs.short_sha }}
+  preview-env-name:
+    description: 'Preview environment name'
+    value: ${{ steps.meta.outputs.preview_env_name }}
+  image-tag:
+    description: 'Docker image tag'
+    value: ${{ steps.meta.outputs.image_tag }}
+  full-image:
+    description: 'Full docker image path with tag'
+    value: ${{ steps.meta.outputs.full_image }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Extract metadata
+      id: meta
+      shell: bash
+      run: |
+        # Get short commit SHA (7 characters) - only if git history is available
+        if git rev-parse --git-dir > /dev/null 2>&1; then
+          SHORT_SHA=$(git rev-parse --short=7 HEAD)
+        else
+          SHORT_SHA="${GITHUB_SHA::7}"
+        fi
+        
+        # Get PR number and committer username for preview environment naming
+        PR_NUMBER="${{ inputs.pr-number }}"
+        COMMITTER_USERNAME="${{ inputs.committer-username }}"
+        PREVIEW_ENV_NAME="pr-${PR_NUMBER}-${COMMITTER_USERNAME}"
+
+        # Set outputs
+        echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+        echo "preview_env_name=$PREVIEW_ENV_NAME" >> $GITHUB_OUTPUT
+        echo "image_tag=$SHORT_SHA" >> $GITHUB_OUTPUT
+        
+        # Only set full_image if registry info is provided
+        if [[ -n "${{ inputs.registry-url }}" && -n "${{ inputs.image-name }}" ]]; then
+          echo "full_image=${{ inputs.registry-url }}/${{ inputs.image-name }}:$SHORT_SHA" >> $GITHUB_OUTPUT
+          echo "Building image: ${{ inputs.registry-url }}/${{ inputs.image-name }}:$SHORT_SHA"
+        fi
+        
+        echo "Preview Environment: $PREVIEW_ENV_NAME"

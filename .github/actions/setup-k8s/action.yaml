@@ -1,0 +1,46 @@
+name: 'Setup Kubernetes Environment'
+description: 'Sets up kubectl, jsonnet, task, and kubeconfig for Kubernetes operations'
+
+inputs:
+  kubeconfig:
+    description: 'Base64 encoded kubeconfig'
+    required: true
+  github-token:
+    description: 'GitHub token for Task installation'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.33.3'
+    
+    - name: Install jsonnet
+      shell: bash
+      run: |
+        # Install go-jsonnet using .deb package
+        VERSION="0.21.0"
+        ARCH=$(dpkg --print-architecture)
+        
+        wget https://github.com/google/go-jsonnet/releases/download/v${VERSION}/jsonnet-go_${VERSION}_linux_${ARCH}.deb -P /tmp
+        sudo dpkg -i /tmp/jsonnet-go_${VERSION}_linux_${ARCH}.deb
+        
+        # Verify installation
+        jsonnet --version
+    
+    - name: Install Task
+      uses: arduino/setup-task@v1
+      with:
+        version: 3.x
+        repo-token: ${{ inputs.github-token }}
+    
+    - name: Configure kubectl
+      shell: bash
+      run: |
+        # Create tmp directory for kubeconfig
+        mkdir -p infrastructure/tmp
+        
+        # Configure kubectl to connect to your cluster
+        echo "${{ inputs.kubeconfig }}" | base64 --decode > infrastructure/tmp/kubeconfig
