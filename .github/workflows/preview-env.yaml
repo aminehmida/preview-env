@@ -122,31 +122,45 @@ jobs:
       with:
         script: |
           const previewUrl = `https://${{ steps.meta.outputs.preview_env_name }}.previewenv.aminehmida.com`;
-          const comment = `## 🚀 Preview Environment Deployed
+          const deployedAt = new Date().toISOString();
           
-          Your preview environment has been successfully deployed!
+          let comment;
           
-          **📍 Preview URL:** ${previewUrl}
-          **🏷️ Image Tag:** \`${{ steps.meta.outputs.image_tag }}\`
-          **🐳 Docker Image:** \`${{ steps.meta.outputs.full_image }}\`
-          **🌿 Environment:** \`${{ steps.meta.outputs.preview_env_name }}\`
-          **⚙️ Commit SHA:** \`${{ github.sha }}\`
-          
-          ---
-          
-          💡 **Tips:**
-          - The preview environment will be available in a few moments
-          - This environment will be updated automatically when you push new commits
-          - Environment resources: 1 replica, 3000 port
-          
-          <details>
-          <summary>🔧 Deployment Details</summary>
-          
-          - **Workflow Run:** [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-          - **Branch:** \`${{ github.head_ref }}\`
-          - **Deployed at:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')
-          
-          </details>`;
+          if ('${{ github.event.action }}' === 'synchronize') {
+            // Short comment for new commits
+            comment = `## 🔄 Preview Environment Updated
+            
+            **📍 Preview URL:** ${previewUrl}
+            **🏷️ Image Tag:** \`${{ steps.meta.outputs.image_tag }}\`
+            **⚙️ Commit SHA:** \`${{ github.sha }}\``;
+          } else {
+            // Detailed comment for opened/reopened PR
+            comment = `## 🚀 Preview Environment Deployed
+            
+            Your preview environment has been successfully deployed!
+            
+            **📍 Preview URL:** ${previewUrl}
+            **🏷️ Image Tag:** \`${{ steps.meta.outputs.image_tag }}\`
+            **🐳 Docker Image:** \`${{ steps.meta.outputs.full_image }}\`
+            **🔎 Environment:** \`${{ steps.meta.outputs.preview_env_name }}\`
+            **⚙️ Commit SHA:** \`${{ github.sha }}\`
+            
+            ---
+            
+            💡 **Tips:**
+            - The preview environment will be available in a few moments
+            - This environment will be updated automatically when you push new commits
+            - Environment resources: 1 replica, 3000 port
+            
+            <details>
+            <summary>🔧 Deployment Details</summary>
+            
+            - **Workflow Run:** [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            - **Branch:** \`${{ github.head_ref }}\`
+            - **Deployed at:** ${deployedAt}
+            
+            </details>`;
+          }
           
           github.rest.issues.createComment({
             issue_number: context.issue.number,
