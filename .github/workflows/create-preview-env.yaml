@@ -1,4 +1,4 @@
-name: Build and Deploy Non-Main Branches
+name: Build and Deploy Preview Environment on Pull Requests
 
 on:
   pull_request:
