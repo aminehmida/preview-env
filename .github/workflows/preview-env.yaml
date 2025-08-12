@@ -90,11 +90,10 @@ jobs:
     - name: Configure kubectl
       run: |
         # Create tmp directory for kubeconfig (matching your script's expectation)
-        mkdir -p tmp
+        mkdir -p infrastructure/tmp
         
         # Configure kubectl to connect to your cluster
-        # Option 1: Using kubeconfig from secrets
-        echo "${{ secrets.KUBE_CONFIG }}" > tmp/kubeconfig
+        echo "${{ secrets.KUBE_CONFIG }}" > infrastructure/tmp/kubeconfig
         
     
     - name: Deploy to Kubernetes

@@ -7,21 +7,23 @@ vars:
   BASE_DOMAIN: '{{.BASE_DOMAIN | default "previewenv.aminehmida.com"}}'
   ENV: '{{.ENV | default "prod"}}'
   REPLICAS: '{{.REPLICAS | default 1}}'
+  KUBE_CONFIG: '{{.KUBE_CONFIG | default "../tmp/kubeconfig"}}'
 
 tasks:
   compile:
     desc: "Compile kubernetes manifests using Jsonnet to manifests/"
     cmds:
+      - mkdir -p manifests
       - jsonnet -S --ext-str appName="{{.APP_NAME}}" --ext-str image="{{.IMAGE}}" --ext-str port="{{.PORT}}" --ext-str baseDomain="{{.BASE_DOMAIN}}" --ext-str env="{{.ENV}}" --ext-str replicas={{.REPLICAS}} main.jsonnet -m manifests/
   apply:
     desc: "Apply kubernetes manifests"
     deps: [compile]
     cmds:
-      - kubectl --kubeconfig=../tmp/kubeconfig apply -f manifests/
+      - kubectl --kubeconfig={{.KUBE_CONFIG}} apply -f manifests/
   delete:
     desc: "Delete kubernetes manifests"
     cmds:
-      - kubectl --kubeconfig=../tmp/kubeconfig delete -f manifests/
+      - kubectl --kubeconfig={{.KUBE_CONFIG}} delete -f manifests/
   clean:
     desc: "Clean up generated manifests"
     cmds:
