@@ -10,3 +10,27 @@ includes:
   k8s:
     taskfile: ./infrastructure/jsonnet/Taskfile.yml
     dir: ./infrastructure/jsonnet
+
+tasks:
+  docker:login:
+    desc: "Log in to Docker registry"
+    dotenv: ["./infrastructure/terraform/.env"]
+    cmds:
+      - echo "$TF_VAR_registry_password" | docker login $TF_VAR_registry_url --username $TF_VAR_registry_username --password-stdin
+  docker:build:
+    desc: "Build Docker image for preview environment"
+    cmds:
+      - docker buildx build --platform {{ .PLATFORM | default "linux/amd64" }} --tag c8n.io/aminehmida/preview-env:{{ .TAG | default "latest" }} .
+  docker:push:
+    desc: "Push Docker image to registry"
+    cmds:
+      - docker push --platform {{ .PLATFORM | default "linux/amd64" }} c8n.io/aminehmida/preview-env:{{ .TAG | default "latest" }}
+  docker:run:
+    desc: "Run Docker container for preview environment"
+    cmds:
+      - docker run -d --name preview-env -p {{ .PORT | default "3000" }}:{{ .PORT | default "3000" }} c8n.io/aminehmida/preview-env:{{ .TAG | default "latest" }}
+  docker:stop:
+    desc: "Stop Docker container for preview environment"
+    cmds:
+      - docker stop preview-env || true
+      - docker rm preview-env || true
